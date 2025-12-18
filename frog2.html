@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>قورباغه باهوش</title>
+
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #b3e5fc;
+    margin: 0;
+    padding: 10px;
+  }
+
+  #pond {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    height: 350px;
+    margin: 10px auto;
+    background: #4fc3f7;
+    border-radius: 20px;
+    border: 4px solid #0288d1;
+  }
+
+  .leaf {
+    position: absolute;
+    width: 90px;
+    height: 55px;
+    background: #66bb6a;
+    border-radius: 50%;
+    line-height: 55px;
+    font-size: 22px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+  }
+
+  #leaf1 { top: 60px; left: 10%; }
+  #leaf2 { top: 200px; left: 40%; }
+  #leaf3 { top: 80px; left: 70%; }
+
+  #frog {
+    position: absolute;
+    bottom: 15px;
+    left: 45%;
+    font-size: 36px;
+    transition: all 0.8s;
+  }
+
+  #panel {
+    font-size: 16px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+
+<body>
+
+<h2>🐸 قورباغه‌ی باهوش</h2>
+<h3 id="question"></h3>
+
+<div id="pond">
+  <div class="leaf" id="leaf1" onclick="checkAnswer(this)"></div>
+  <div class="leaf" id="leaf2" onclick="checkAnswer(this)"></div>
+  <div class="leaf" id="leaf3" onclick="checkAnswer(this)"></div>
+  <div id="frog">🐸</div>
+</div>
+
+<div id="panel">
+  ⏱ <span id="time">10</span> ثانیه |
+  ⭐ امتیاز: <span id="score">0</span> |
+  مرحله <span id="stage">1</span> از 5
+</div>
+
+<script>
+let stage = 1;
+let score = 0;
+let timeLeft = 10;
+let timer;
+let correctAnswer = 0;
+
+startStage();
+
+function startStage() {
+  document.getElementById("stage").innerText = stage;
+  timeLeft = 10;
+  document.getElementById("time").innerText = timeLeft;
+  startTimer();
+
+  if (stage <= 3) numberStage();
+  else if (stage === 4) mathStage("+");
+  else mathStage("-");
+}
+
+function startTimer() {
+  clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById("time").innerText = timeLeft;
+    if (timeLeft === 0) showCorrectAndNext();
+  }, 1000);
+}
+
+function numberStage() {
+  correctAnswer = rand();
+  document.getElementById("question").innerText =
+    "روی عدد «" + correctAnswer + "» کلیک کن";
+  setLeaves(correctAnswer);
+}
+
+function mathStage(op) {
+  let a = rand();
+  let b = rand();
+  if (op === "-" && b > a) [a, b] = [b, a];
+  correctAnswer = op === "+" ? a + b : a - b;
+
+  document.getElementById("question").innerText =
+    a + " " + op + " " + b + " = ؟";
+  setLeaves(correctAnswer);
+}
+
+function setLeaves(correct) {
+  let nums = new Set([correct]);
+  while (nums.size < 3) nums.add(rand());
+  let arr = [...nums].sort(() => Math.random() - 0.5);
+  ["leaf1","leaf2","leaf3"].forEach((id,i) =>
+    document.getElementById(id).innerText = arr[i]
+  );
+}
+
+function checkAnswer(el) {
+  clearInterval(timer);
+  moveFrog(el);
+
+  if (parseInt(el.innerText) === correctAnswer) {
+    score += 10;
+    alert("✅ آفرین! پاسخ درست بود");
+  } else {
+    score -= 5;
+    alert("❌ اشتباه بود 😌\nجواب درست: " + correctAnswer);
+  }
+
+  document.getElementById("score").innerText = score;
+  nextStage();
+}
+
+function showCorrectAndNext() {
+  score -= 5;
+  document.getElementById("score").innerText = score;
+  alert("⏰ زمان تمام شد!\nجواب درست: " + correctAnswer);
+  nextStage();
+}
+
+function nextStage() {
+  clearInterval(timer);
+  if (stage < 5) {
+    stage++;
+    resetFrog();
+    startStage();
+  } else {
+    alert("🎉 بازی تمام شد!\nامتیاز نهایی: " + score);
+    stage = 1;
+    score = 0;
+    document.getElementById("score").innerText = score;
+    resetFrog();
+    startStage();
+  }
+}
+
+function rand() {
+  return Math.floor(Math.random() * 9) + 1;
+}
+
+function moveFrog(el) {
+  frog.style.left = el.style.left;
+  frog.style.top = el.style.top;
+}
+
+function resetFrog() {
+  frog.style.top = "auto";
+  frog.style.bottom = "15px";
+  frog.style.left = "45%";
+}
+</script>
+
+</body>
+</html>
